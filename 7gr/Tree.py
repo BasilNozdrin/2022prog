@@ -20,7 +20,8 @@ def load_state(state):
     pd()
 
 
-def draw_tree(iterations=5, side_length=100., angle=30., k=0.8):
+def draw_tree(iterations=16, side_length=100., angle=20., k=0.9):
+    width(iterations+1)
     fd(side_length)
     if iterations < 1:
         return
@@ -36,7 +37,7 @@ def draw_tree(iterations=5, side_length=100., angle=30., k=0.8):
     # рисуем правую ветку
     rt(angle)
     color((0, 0.8, 0.5))
-    draw_tree(iterations - 1, side_length * k, angle, k)
+    draw_tree(iterations-1, side_length*k, angle, k)
 
 
 if __name__ == "__main__":
