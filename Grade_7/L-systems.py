@@ -20,15 +20,15 @@ def draw_string(string, step_size=10, angle=90, colors=None):
     for c in string:
         if c == 'F':
             turtle.fd(step_size)
-        if c == 'R':
+        elif c == 'R':
             turtle.rt(angle)
-        if c == 'L':
+        elif c == 'L':
             turtle.lt(angle)
-        if c == 'G':
+        elif c == 'G':
             turtle.pu()
             turtle.fd(step_size)
             turtle.pd()
-        if c == 'C':
+        elif c == 'C':
             if colors is None:
                 continue
             turtle.color(colors[counter % len(colors)])
@@ -43,8 +43,9 @@ def koch(iterations):
     koch_str = make_string('F', ('F', 'FLFRRFLF'), iterations=iterations)
     koch_str = koch_str.replace('F', 'CF')
     colors_len = koch_str.count('C')
-    colors = list(map(lambda row: tuple(row), np.linspace([0, 1, 0], [1, 1, 0], num=colors_len)))
-    draw_string(koch_str, step_size=5, angle=60, colors=colors)
+    colors1 = list(map(lambda row: tuple(row), np.linspace([0, 1, 0], [1, 1, 0], num=colors_len//2)))
+    colors2 = list(map(lambda row: tuple(row), np.linspace([1, 1, 0], [1, 0, 0], num=colors_len//2)))
+    draw_string(koch_str, step_size=5, angle=60, colors=colors1+colors2)
 
 
 def dragon(iterations):
