@@ -48,9 +48,14 @@ def gilbert(iterations):
     draw_string(gilbert_str, step_size=5, angle=90)
 
 
+def serp(iterations):
+    serp_str = make_string('FXFRFFRFF', ('F', 'FF'), ('X', 'RFXFLFXFLFXFR'), iterations=iterations)
+    draw_string(serp_str, step_size=10, angle=120)
+
+
 # koch(5)
 # dragon(3)
-gilbert(5)
+serp(5)
 turtle.done()
 
 # print(len(make_string('F', ('F', 'FLFRRFLF'), iterations=5)))
