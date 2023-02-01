@@ -20,10 +20,18 @@ with open('./file2.txt', 'w') as file2:
     file2.writelines(
         ['asd1', 'asd2\n', 'asd3\n\n', 'asd4']
     )
+    # file2.write('asd1')
+    # file2.write('asd2\n')
+    # file2.write('asd3\n\n')
+    # file2.write('asd4')
 
 with open('./file2.txt', 'r') as file2:
     # пример использования метода для чтения файла в формате массива строк
-    print(file2.readlines(), end='\n'+'~'*30+'\n')
+    strings = file2.readlines()
+    counter = 0
+    for s in strings:
+        print(s, end='')
+    print('\n'+'~'*30+'\n')
 
 with open('./file2.txt', 'r') as file1:
     # При открытии файла на самом деле создается специальный объект,
