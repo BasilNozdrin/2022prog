@@ -18,7 +18,7 @@ def Koch(side_length=100, iterations=5):
 
 def main(iterations):
     ttl.ht()
-    ttl.speed(0)
+    ttl.tracer(1, 0)
     ttl.color('black', 'cyan')
     ttl.pu()
     ttl.setpos(-500,200)
