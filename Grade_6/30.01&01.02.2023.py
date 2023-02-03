@@ -33,7 +33,6 @@ with open('./file2.txt', 'r') as file2:
     # пример использования метода для чтения файла в формате массива строк
     strings = file2.readlines()
     print(strings)
-    counter = 0
     for s in strings:
         print(s, end='')
     print('\n'+'~'*30+'\n')
