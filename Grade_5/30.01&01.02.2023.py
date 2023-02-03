@@ -1,7 +1,7 @@
 # Работа с файлами. Основные методы
 
 # Открываем файл в режиме записи (w - write)
-with open('./file1.txt', mode='w', encoding='utf-8') as file1:
+with open('./file1.txt', mode='w',  encoding='utf-8') as file1:
     # Пишем в файл
     file1.write("Hello! This is contents of file1!\n")
     file1.write("This is second line in file1.txt\n")
@@ -20,6 +20,10 @@ with open('./file2.txt', 'w') as file2:
     file2.writelines(
         ['asd1', 'asd2\n', 'asd3\n\n', 'asd4']
     )
+
+    # for x in ['asd1', 'asd2\n', 'asd3\n\n', 'asd4']:
+    #     file2.write(x)
+
     # file2.write('asd1')
     # file2.write('asd2\n')
     # file2.write('asd3\n\n')
@@ -28,6 +32,7 @@ with open('./file2.txt', 'w') as file2:
 with open('./file2.txt', 'r') as file2:
     # пример использования метода для чтения файла в формате массива строк
     strings = file2.readlines()
+    print(strings)
     counter = 0
     for s in strings:
         print(s, end='')
