@@ -64,9 +64,10 @@ def serp(iterations):
     draw_string(serp_str, step_size=10, angle=120)
 
 
-koch(5)
-# dragon(3)
+# koch(5)
+# dragon(15)
 # serp(5)
+gilbert(6)
 turtle.done()
 
 # print(len(make_string('F', ('F', 'FLFRRFLF'), iterations=5)))
