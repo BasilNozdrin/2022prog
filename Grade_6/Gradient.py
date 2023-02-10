@@ -39,7 +39,7 @@ def gradient_square(x, y, size, color1, color2, color3, color4, smoothness=100):
 
 if __name__ == "__main__":
     ht()
-    speed(0)
+    tracer(1, 0)
     colormode(1.)
 
     gradient_square(-400, -400, 800, (1, 0, 0), (1, 1, 0), (1, 0, 1), (0, 1, 1))
