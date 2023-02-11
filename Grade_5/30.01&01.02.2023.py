@@ -1,7 +1,7 @@
 # Работа с файлами. Основные методы
 
 # Открываем файл в режиме записи (w - write)
-with open('./file1.txt', mode='w',  encoding='utf-8') as file1:
+with open('file1.txt', mode='w',  encoding='utf-8') as file1:
     # Пишем в файл
     file1.write("Hello! This is contents of file1!\n")
     file1.write("This is second line in file1.txt\n")
@@ -10,7 +10,7 @@ with open('./file1.txt', mode='w',  encoding='utf-8') as file1:
     print(f'{write_return = }, {len(line_3) = }', end='\n'+'~'*30+'\n')
 
 # Открываем файл в режиме чтения (r - read)
-with open('./file1.txt', mode='r', encoding='utf-8') as file1:
+with open('file1.txt', mode='r', encoding='utf-8') as file1:
     # читаем полностью файл
     s = file1.read()
 print(s, end='\n'+'~'*30+'\n')
