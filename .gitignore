@@ -1,6 +1,10 @@
 .idea
 .ipynb_checkpoints
 
+*_preview.svg
+*_preview.png
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -38,7 +38,7 @@ def draw_string(string, step_size=10, angle=90, colors=None):
 def koch(iterations):
     turtle.width(5)
     turtle.pu()
-    turtle.setpos(-400, -200)
+    turtle.setpos(-600, -200)
     turtle.pd()
     koch_str = make_string('F', ('F', 'FLFRRFLF'), iterations=iterations)
     koch_str = koch_str.replace('F', 'CF')
@@ -64,10 +64,10 @@ def serp(iterations):
     draw_string(serp_str, step_size=10, angle=120)
 
 
-# koch(5)
+koch(5)
 # dragon(15)
 # serp(5)
-gilbert(6)
+# gilbert(6)
 turtle.done()
 
 # print(len(make_string('F', ('F', 'FLFRRFLF'), iterations=5)))
