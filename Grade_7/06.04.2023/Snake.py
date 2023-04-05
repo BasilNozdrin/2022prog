@@ -3,6 +3,8 @@ import pygame.freetype as ft
 import sys
 from random import randint
 
+# https://pygame.readthedocs.io/en/latest/
+
 
 class GameLogic:
     def __init__(self, app):
