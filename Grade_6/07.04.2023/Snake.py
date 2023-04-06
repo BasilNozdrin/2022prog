@@ -7,75 +7,109 @@ from random import randint
 
 
 class GameLogic:
-    def __init__(self, app):
+    def __init__(self, app, max_score=0):
         self.app = app
         self.field_width = self.app.screen.get_width() // 20
         self.field_height = self.app.screen.get_height() // 20
         self.snake = [[self.app.screen.get_width() // 40, self.app.screen.get_height() // 40]]
-        for x in range(40):
-            self.snake.append([self.snake[-1][0]+1, self.snake[-1][1]])
-        self.snake_direction = (0, 0)
-        self.last_direction = (0, 0)
+        self.colors = []
+        self.make_colors()
+        self.snake_direction = (1, 0)
+        self.last_direction = (1, 0)
         self.food = None
         self.spawn_food()
         self.game_over = False
         self.timer = 0
         self.score = 0
-        self.score_font = pg.font.SysFont("exo2extrabold", 24)
+        self.max_score = max_score
+
+    def make_colors(self):
+        color1 = (26, 95, 122)
+        color2 = (0, 43, 91)
+        n = len(self.snake)
+        self.colors = []
+        for i in range(n):
+            # some gradient magic
+            self.colors.append(tuple(map(lambda x: x[0] * i / n + x[1] * (n - i) / n, zip(color1, color2))))
 
     def spawn_food(self):
         self.food = [randint(0, self.field_width-1), randint(0, self.field_height-1)]
         if self.food in self.snake:
             self.food = None
 
+    def restart(self):
+        self.snake = [[self.app.screen.get_width() // 40, self.app.screen.get_height() // 40]]
+        self.snake_direction = (1, 0)
+        self.last_direction = (1, 0)
+        self.game_over = False
+        self.timer = 0
+        self.score = 0
+        self.food = None
+        while self.food is None:
+            self.spawn_food()
+        print(f'Max score is {self.max_score}!')
+
     def update(self):
         if self.game_over:
             return
+
         self.timer += self.app.dt
-        if self.food is None:
+
+        while self.food is None:
             self.spawn_food()
-        if self.timer < 0.1:
+
+        delay = 0.1
+        if self.timer < delay:
             return
-        self.timer -= 0.1
+        self.timer -= delay
+
         self.last_direction = self.snake_direction
+
         new_head = [
             (self.snake[-1][0] + self.snake_direction[0]) % self.field_width,
             (self.snake[-1][1] + self.snake_direction[1]) % self.field_height,
         ]
+
+        if new_head in self.snake:
+            self.game_over = True
+            if self.score > self.max_score:
+                self.max_score = self.score
+            return
+
+        self.snake.append(new_head)
         if new_head == self.food:
             self.spawn_food()
             self.score += 1
-        elif new_head not in self.snake:
-            self.snake.pop(0)
+            self.make_colors()
         else:
-            self.game_over = True
-        self.snake.append(new_head)
+            self.snake.pop(0)
 
     def draw(self):
         if self.game_over:
             self.draw_snake()
             self.draw_food()
             self.draw_score()
+            self.draw_game_over()
         else:
             self.draw_snake()
             self.draw_food()
             self.draw_score()
 
+    def draw_game_over(self):
+        img = self.app.score_font.render(f'You lose scoring {self.score}. Max record is {self.max_score}', True, (0, 43, 91))
+        self.app.screen.blit(img, (200, 200))
+
     def draw_score(self):
-        img = self.score_font.render(f'Score: {self.score}', True, (200, 0, 0))
+        img = self.app.score_font.render(f'Score: {self.score}', True, (0, 43, 91))
         self.app.screen.blit(img, (20, 20))
 
     def draw_food(self):
         if self.food:
-            pg.draw.rect(self.app.screen, (59, 161, 5), [self.food[0]*20, self.food[1]*20, 20, 20])
+            pg.draw.rect(self.app.screen, (21, 152, 149), [self.food[0]*20, self.food[1]*20, 20, 20])
 
     def draw_snake(self):
-        red = (161, 5, 5)
-        yellow = (145, 161, 5)
-        n = len(self.snake)
         for index, square in enumerate(self.snake):
-            color = tuple(map(lambda x: x[0] * index / n + x[1] * (n - index) / n, zip(red, yellow)))
-            pg.draw.rect(self.app.screen, color, [square[0]*20, square[1]*20, 20, 20])
+            pg.draw.rect(self.app.screen, self.colors[index], [square[0]*20, square[1]*20, 20, 20])
 
     def move_up(self):
         if self.last_direction != (0, 1):
@@ -90,7 +124,7 @@ class GameLogic:
             self.snake_direction = (0, 1)
 
     def move_right(self):
-        if self.last_direction != (1, 0):
+        if self.last_direction != (-1, 0):
             self.snake_direction = (1, 0)
 
 
@@ -101,7 +135,7 @@ class App:
         pg.display.set_caption('Snake')
         print(type(self.screen))
         self.clock = pg.time.Clock()
-        self.font = ft.SysFont('Verdana', 40)
+        self.score_font = pg.font.SysFont("exo2extrabold", 24)
         self.dt = 0.0
         self.logic = GameLogic(self)
 
@@ -111,7 +145,7 @@ class App:
         self.dt = self.clock.tick() * 0.001
 
     def draw(self):
-        self.screen.fill((0, 84, 31))
+        self.screen.fill((87, 197, 182))
         self.logic.draw()
 
     def check_events(self):
@@ -122,7 +156,7 @@ class App:
             if self.logic.game_over:
                 if e.type == pg.KEYDOWN:
                     # TODO: save records
-                    self.logic = GameLogic(self)
+                    self.logic.restart()
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_UP or e.key == ord('w'):
                     self.logic.move_up()
