@@ -41,24 +41,6 @@ class App:
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
-            # Whenever a key is pressed down
-            elif event.type == pg.KEYDOWN:
-                # W -> Up; S -> Down; A -> Left; D -> Right
-                if event.key == pg.K_UP or event.key == ord('w'):
-                    y1_change = -snake_block
-                    x1_change = 0
-                if event.key == pg.K_DOWN or event.key == ord('s'):
-                    y1_change = snake_block
-                    x1_change = 0
-                if event.key == pg.K_LEFT or event.key == ord('a'):
-                    x1_change = -snake_block
-                    y1_change = 0
-                if event.key == pg.K_RIGHT or event.key == ord('d'):
-                    x1_change = snake_block
-                    y1_change = 0
-                # Esc -> Create event to quit the game
-                if event.key == pg.K_ESCAPE:
-                    pg.event.post(pg.event.Event(pg.QUIT))
 
     def run(self):
         while True:
