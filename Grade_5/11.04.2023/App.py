@@ -4,41 +4,30 @@ import sys
 from enum import IntEnum
 
 
-class State(IntEnum):
-    IDLE = 0
-    MOVING_UPWARD = 1
-    MOVING_LEFTWARD = 2
-    MOVING_DOWNWARD = 3
-    MOVING_RIGHTWARD = 4
-    MOVING_UPLEFT = 5
-    MOVING_UPRIGHT = 6
-    MOVING_DOWNRIGHT = 7
-    MOVING_DOWNLEFT = 8
-
-
 class Control:
     def __init__(self, app):
         self.app = app
+        self.width, self.height = app.screen.get_width(), app.screen.get_height()
         self.x, self.y = 100, 100
         self.x_velocity, self.y_velocity = 0, 0
-        self.state = State.IDLE
+        self.max_speed = 600
+        self.moving = {'up': False, 'left': False, 'down': False, 'right': False}
 
     def update(self):
-        acceleration = 60
-        if self.state == State.MOVING_UPWARD or self.state == State.MOVING_UPLEFT or self.state == State.MOVING_UPRIGHT:
+        acceleration = 400
+        if self.moving['up'] and abs(self.y_velocity) < self.max_speed:
             self.y_velocity -= acceleration * self.app.dt
-        if self.state == State.MOVING_LEFTWARD or self.state == State.MOVING_UPLEFT or self.state == State.MOVING_DOWNLEFT:
+        if self.moving['left'] and abs(self.x_velocity) < self.max_speed:
             self.x_velocity -= acceleration * self.app.dt
-        if self.state == State.MOVING_DOWNWARD:
+        if self.moving['down'] and abs(self.y_velocity) < self.max_speed:
             self.y_velocity += acceleration * self.app.dt
-        if self.state == State.MOVING_RIGHTWARD:
+        if self.moving['right'] and abs(self.x_velocity) < self.max_speed:
             self.x_velocity += acceleration * self.app.dt
-        if self.state == State.IDLE:
-            self.x_velocity *= 0.8
-            self.y_velocity *= 0.8
 
         self.x += self.x_velocity * self.app.dt
         self.y += self.y_velocity * self.app.dt
+
+        # bounce from screen edges
         if self.x < 0 or self.x > 1600:
             self.x_velocity *= -1
         if self.y < 0 or self.y > 900:
@@ -48,24 +37,44 @@ class Control:
         pg.draw.circle(self.app.screen, (87, 197, 182), (self.x, self.y), 30)
 
     def move_up(self):
-        if self.state == State.MOVING_LEFTWARD:
-            self.state == State.MOVING_UPLEFT
-        elif self.state == State.MOVING_RIGHTWARD:
-            self.state == State.MOVING_UPRIGHT
+        if self.y_velocity > 0:
+            self.stop_move_down()
         else:
-            self.state = State.MOVING_UPWARD
+            self.moving['up'] = True
 
     def move_down(self):
-        self.state = State.MOVING_DOWNWARD
+        if self.y_velocity < 0:
+            self.stop_move_up()
+        else:
+            self.moving['down'] = True
 
     def move_left(self):
-        self.state = State.MOVING_LEFTWARD
+        if self.x_velocity < 0:
+            self.stop_move_right()
+        else:
+            self.moving['left'] = True
 
     def move_right(self):
-        self.state = State.MOVING_RIGHTWARD
+        if self.x_velocity < 0:
+            self.stop_move_left()
+        else:
+            self.moving['right'] = True
 
-    def idle(self):
-        self.state = State.IDLE
+    def stop_move_up(self):
+        self.moving['up'] = False
+        self.y_velocity = 0
+
+    def stop_move_down(self):
+        self.moving['down'] = False
+        self.y_velocity = 0
+
+    def stop_move_left(self):
+        self.moving['left'] = False
+        self.x_velocity = 0
+
+    def stop_move_right(self):
+        self.moving['right'] = False
+        self.x_velocity = 0
 
 
 class App:
@@ -73,7 +82,7 @@ class App:
         pg.init()
         self.width, self.height = 1600, 900
         self.screen = pg.display.set_mode((self.width, self.height))
-        print(type(self.screen))
+        pg.display.set_caption('Game title should be here!')
         self.clock = pg.time.Clock()
         self.font = ft.SysFont('exo2extrabold', 30)
         self.dt = 0.0
@@ -108,7 +117,14 @@ class App:
                 if e.key == pg.K_RIGHT or e.key == ord('d'):
                     self.control.move_right()
             elif e.type == pg.KEYUP:
-                self.control.idle()
+                if e.key == pg.K_UP or e.key == ord('w'):
+                    self.control.stop_move_up()
+                if e.key == pg.K_DOWN or e.key == ord('s'):
+                    self.control.stop_move_down()
+                if e.key == pg.K_LEFT or e.key == ord('a'):
+                    self.control.stop_move_left()
+                if e.key == pg.K_RIGHT or e.key == ord('d'):
+                    self.control.stop_move_right()
 
     def run(self):
         while True:
@@ -118,5 +134,4 @@ class App:
 
 
 if __name__ == '__main__':
-    app = App()
-    app.run()
+    App().run()
