@@ -121,7 +121,6 @@ class App:
                 sys.exit()
             if self.logic.game_over:
                 if e.type == pg.KEYDOWN:
-                    # TODO: save records
                     self.logic = GameLogic(self)
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_UP or e.key == ord('w'):
