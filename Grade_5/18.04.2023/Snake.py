@@ -1,10 +1,34 @@
 import pygame as pg
-import pygame.freetype as ft
 import sys
 from random import randint
+import json
 
 
 # https://pygame.readthedocs.io/en/latest/
+# python -m pygame.docs
+
+class Button:
+    def __init__(self, screen, x, y, text, font, color=(0, 43, 91), bg_color=(26, 95, 122), on_press=None):
+        self.screen = screen
+        self.bg_color = bg_color
+        self.img = font.render(text, True, color)
+        self.rect = self.img.get_rect()
+        self.rect.left = x
+        self.rect.top = y
+        self.on_press = on_press
+
+    def draw(self):
+        pg.draw.rect(self.screen, self.bg_color, self.rect)
+        self.screen.blit(self.img, self.rect)
+
+    def press(self, event):
+        if event.pos[0] < self.rect.left \
+                or event.pos[0] > self.rect.left + self.rect.width \
+                or event.pos[1] < self.rect.top \
+                or event.pos[1] > self.rect.top + self.rect.height:
+            return
+        if self.on_press:
+            self.on_press()
 
 
 class Snake:
@@ -27,8 +51,8 @@ class Snake:
 
         if new_head in self.blocks:
             self.logic.game_over = True
-            if self.logic.score > self.logic.max_score:
-                self.logic.max_score = self.logic.score
+            if self.logic.score > self.logic.records['username']:
+                self.logic.records['username'] = self.logic.score
             return
 
         self.blocks.append(new_head)
@@ -50,7 +74,7 @@ class Snake:
         self.colors = []
         for i in range(n):
             # some gradient magic
-            self.colors.append(tuple(map(lambda x: x[0] * i / n + x[1] * (n - i) / n, zip(color1, color2))))
+            self.colors.append(tuple(map(lambda x: x[0] * i / n + x[1] * (1 - i / n), zip(color1, color2))))
 
     def move_up(self):
         if self.last_direction != (0, 1):
@@ -75,22 +99,27 @@ class Food:
         self.width_range = width_range
         self.height_range = height_range
         self.coords = None
-        self.spawn()
         self.sprite = pg.image.load('cherry.png')
         self.rect = self.sprite.get_rect()
 
+        self.spawn()
+
     def spawn(self):
         self.coords = (randint(0, self.width_range - 1), randint(0, self.height_range - 1))
+        self.rect.left = self.coords[0] * 20
+        self.rect.top = self.coords[1] * 20
+
         if self.coords in self.logic.snake.blocks:
             self.spawn()
 
     def draw(self):
-        self.logic.app.screen.blit(self.sprite, [self.coords[0] * 20, self.coords[1] * 20, 20, 20])
+        self.logic.app.screen.blit(self.sprite, self.rect)
+        # self.logic.app.screen.blit(self.sprite, [self.coords[0] * 20, self.coords[1] * 20, 20, 20])
         # pg.draw.rect(self.logic.app.screen, (21, 152, 149), [self.coords[0] * 20, self.coords[1] * 20, 20, 20])
 
 
 class GameLogic:
-    def __init__(self, app, max_score=0):
+    def __init__(self, app):
         self.app = app
 
         self.field_width = self.app.screen.get_width() // 20
@@ -99,17 +128,24 @@ class GameLogic:
         self.snake = Snake(self, self.app.screen.get_width() // 40, self.app.screen.get_height() // 40)
         self.food = Food(self, self.field_width, self.field_height)
 
+        self.button = Button(self.app.screen, 400, 400, 'Restart', self.app.font, on_press=self.restart)
+
         self.game_over = False
         self.timer = 0
         self.score = 0
-        self.max_score = max_score
+        try:
+            with open('save.json') as file:
+                self.records = json.load(file)
+        except FileNotFoundError:
+            self.records = {'username': 0}
 
     def restart(self):
+        self.save_records()
         self.snake = Snake(self, self.app.screen.get_width() // 40, self.app.screen.get_height() // 40)
         self.game_over = False
         self.timer = 0
+        self.records['username'] = self.score
         self.score = 0
-        print(f'Max score is {self.max_score}!')
 
     def update(self):
         if self.game_over:
@@ -130,19 +166,25 @@ class GameLogic:
             self.food.draw()
             self.draw_score()
             self.draw_game_over()
+            self.button.draw()
         else:
             self.snake.draw()
             self.food.draw()
             self.draw_score()
 
+    def save_records(self):
+        with open('save.json', 'w') as file:
+            json.dump(self.records, file)
+
     def draw_game_over(self):
-        img = self.app.score_font.render(f'You lose scoring {self.score}. Max record is {self.max_score}', True,
-                                         (0, 43, 91))
+        img = self.app.font.render(f'You lose scoring {self.score}. Max record is {max(self.records.values())}',
+                                   True, (0, 43, 91))
         self.app.screen.blit(img, (200, 200))
 
     def draw_score(self):
-        img = self.app.score_font.render(f'Score: {self.score}', True, (0, 43, 91))
+        img = self.app.font.render(f'Score: {self.score}', True, (0, 43, 91))
         self.app.screen.blit(img, (20, 20))
+
 
 class App:
     def __init__(self):
@@ -151,17 +193,21 @@ class App:
         pg.display.set_caption('Snake')
         print(type(self.screen))
         self.clock = pg.time.Clock()
-        self.score_font = pg.font.SysFont("exo2extrabold", 24)
+        self.font = pg.font.SysFont("exo2extrabold", 24)
         self.dt = 0.0
         self.logic = GameLogic(self)
+        self.bg = pg.image.load('background.png')
+        self.bg = pg.transform.smoothscale(self.bg, self.screen.get_size())
 
     def update(self):
         self.logic.update()
         pg.display.flip()
-        self.dt = self.clock.tick() * 0.001
+
+        # dt is time passed since the last Clock.tick() call in milliseconds
+        self.dt = self.clock.tick(60) * 0.001
 
     def draw(self):
-        self.screen.fill((87, 197, 182))
+        self.screen.blit(self.bg, (0, 0))
         self.logic.draw()
 
     def check_events(self):
@@ -170,9 +216,8 @@ class App:
                 pg.quit()
                 sys.exit()
             if self.logic.game_over:
-                if e.type == pg.KEYDOWN:
-                    # TODO: save records to file
-                    self.logic.restart()
+                if e.type == pg.MOUSEBUTTONDOWN:
+                    self.logic.button.press(e)
             elif e.type == pg.KEYDOWN:
                 if e.key == pg.K_UP or e.key == ord('w'):
                     self.logic.snake.move_up()
