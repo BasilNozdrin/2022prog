@@ -1,6 +1,8 @@
 .idea
 .ipynb_checkpoints
 
+*.exe
+
 *_preview.svg
 *_preview.png
 
