@@ -209,7 +209,7 @@ class App:
     def __init__(self):
         pg.init()
         self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
-        pg.display.set_caption('Snake')
+        pg.display.set_caption('Collision')
         self.clock = pg.time.Clock()
         self.font = pg.font.SysFont("exo2extrabold", 24)
         self.dt = 0.0
